@@ -1,21 +1,24 @@
 FROM ubuntu:latest AS builder
 
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     make \
     cmake \
     perl \
     linux-headers \
-    openssl-dev \
-    pcre-dev \
-    zlib-dev \
+    libssl-dev \
+    libpcre3-dev \
+    zlib1g-dev \
     curl \
     git
 
-# 哎呀～这才是风之魔法的真谛！正确安装Rust和Cargo～
-RUN apk add --no-cache rust cargo
+# 安装Rustup工具，就像风带来的礼物～
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# 配置环境变量
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # 构建BoringSSL (HTTP/3需要)，就像酿造特别的【酒】需要最好的葡萄～
 WORKDIR /src
@@ -33,11 +36,9 @@ RUN curl -O https://nginx.org/download/nginx-1.26.3.tar.gz && \
 
 # 下载并构建quiche (QUIC实现)，就像寻找风神的秘谱～
 WORKDIR /src
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN rustup update stable
-RUN git clone --recursive https://github.com/cloudflare/quiche && \
-    cd quiche && \
-    cargo build --examples
+RUN git clone --recursive https://github.com/cloudflare/quiche
+WORKDIR /src/quiche
+RUN cargo build --release --features ffi,pkg-config-meta,qlog
 
 # 啊，最关键的风之魔法——应用补丁！
 WORKDIR /src/nginx-1.26.3
@@ -65,17 +66,17 @@ FROM ubuntu:latest
 # 复制构建好的文件，像收集风中的蒲公英种子
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
 COPY --from=builder /etc/nginx /etc/nginx
-COPY --from=builder /src/boringssl/build/libssl.so /usr/lib/
-COPY --from=builder /src/boringssl/build/libcrypto.so /usr/lib/
+COPY --from=builder /src/boringssl/build/ssl/libssl.so /usr/lib/
+COPY --from=builder /src/boringssl/build/crypto/libcrypto.so /usr/lib/
 
 # 添加运行依赖，像为歌谣添加伴奏
-RUN apk add --no-cache pcre openssl libstdc++ && \
+RUN apt-get update && apt-get install -y libpcre3 libssl1.1 zlib1g && \
     mkdir -p /var/log/nginx && \
     mkdir -p /var/cache/nginx
 
 # 添加Nginx用户，像风给树叶安家
-RUN addgroup -g 101 -S nginx && \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+RUN addgroup --system nginx && \
+    adduser --system --no-create-home --disabled-login --ingroup nginx nginx
 
 # 准备配置和文件，像布置一场音乐会
 COPY nginx.conf /etc/nginx/nginx.conf
