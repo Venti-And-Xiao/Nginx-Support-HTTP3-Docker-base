@@ -4,8 +4,7 @@ FROM ubuntu:latest AS builder
 RUN apt-get update
 
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
-RUN sudo apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r)
-
+RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r)
 # 安装Rustup工具，就像风带来的礼物～
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
@@ -84,7 +83,7 @@ RUN ./configure \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto"
     
 RUN make
-RUN sudo make install
+RUN make install
 
 # 最终镜像，像风一样轻盈～
 FROM ubuntu:latest
