@@ -50,8 +50,8 @@ WORKDIR /src/nginx-1.26.3
 
 RUN mv /src/quiche /src/nginx-1.26.3/
 
-RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.5.0-beta1/openssl-3.5.0-beta1.tar.gz
-RUN tar -xzvf openssl-3.5.0-beta1.tar.gz
+RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
+RUN tar -xzvf openssl-3.4.1.tar.gz
 
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
