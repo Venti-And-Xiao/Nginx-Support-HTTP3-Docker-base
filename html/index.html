@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nginx HTTP/3 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2196F3;
+        }
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nginx HTTP/3 工作正常！</h1>
+    
+    <div class="info-box">
+        <p>如果你看到这个页面，说明Nginx已经成功安装并运行。</p>
+        
+        <p>要验证HTTP/3是否工作，你可以:</p>
+        <ul>
+            <li>在Chrome中，打开开发者工具，查看网络标签页</li>
+            <li>查看协议列，应该显示h3</li>
+            <li>或使用命令行工具如curl测试: <code>curl --http3 https://localhost</code></li>
+        </ul>
+    </div>
+    
+    <p>更多信息请参阅 <a href="https://github.com/your-username/nginx-http3-docker">项目文档</a>。</p>
+</body>
+</html>
