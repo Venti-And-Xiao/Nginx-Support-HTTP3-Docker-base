@@ -49,13 +49,15 @@ WORKDIR /src/nginx-1.26.3
 
 RUN mv /src/quiche /src/nginx-1.26.3/
 
+WORKDIR /src
 RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.0.13/openssl-3.0.13.tar.gz
 RUN tar -xzvf openssl-3.0.13.tar.gz
-RUN cd openssl-3.0.13
+WORKDIR /src/openssl-3.0.13
 RUN ./config  --prefix=/usr/local/openssl
 RUN make
 RUN make install
 
+WORKDIR /src/nginx-1.26.3
 
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
