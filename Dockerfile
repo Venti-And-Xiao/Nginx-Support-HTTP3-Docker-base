@@ -101,6 +101,7 @@ RUN ./configure \
     --with-stream_ssl_preread_module \
     --with-cc-opt="-I../boringssl/include -I/usr/local/openssl/include" \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -L/usr/local/openssl/lib"
+    --with-openssl=/usr/local/openssl/include
     
 RUN make
 RUN make install
