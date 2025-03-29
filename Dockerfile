@@ -31,7 +31,6 @@ RUN curl -O https://nginx.org/download/nginx-1.25.3.tar.gz && \
 # 下载并构建quiche (QUIC实现)
 RUN git clone --recursive https://github.com/cloudflare/quiche
 WORKDIR /src/nginx-1.25.3
-RUN patch -p01 < /src/quiche/extras/nginx/nginx-1.16.patch
 
 # 配置Nginx与HTTP/3支持
 RUN ./configure \
