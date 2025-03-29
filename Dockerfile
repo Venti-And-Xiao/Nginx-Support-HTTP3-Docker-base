@@ -5,6 +5,19 @@ RUN apt-get update
 
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
 RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r) git wget 
+RUN apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    cmake \
+    perl \
+    linux-headers-$(uname -r) \
+    libssl-dev \
+    libpcre3-dev \
+    zlib1g-dev \
+    curl \
+    git \
+    wget
 # 安装Rustup工具，就像风带来的礼物～
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
