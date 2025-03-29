@@ -33,6 +33,7 @@ RUN curl -O https://nginx.org/download/nginx-1.26.3.tar.gz && \
 
 # 下载并构建quiche (QUIC实现)，就像寻找风神的秘谱～
 WORKDIR /src
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 RUN rustup update stable
 RUN git clone --recursive https://github.com/cloudflare/quiche && \
     cd quiche && \
