@@ -14,7 +14,6 @@ RUN apt-get install -y \
     libssl-dev \
     libpcre3-dev \
     zlib1g-dev \
-    openssl \
     curl \
     git \
     wget
