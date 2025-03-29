@@ -95,8 +95,10 @@ RUN ./configure \
     --with-stream_ssl_preread_module \
     --with-cc-opt="-I../boringssl/include" \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
-    --with-openssl="./openssl-3.5.0-beta1" && \
-    make -j$(nproc) && make install
+    --with-openssl="./openssl-3.5.0-beta1"
+    
+RUN make
+RUN sudo make install
 
 # 最终镜像，像风一样轻盈～
 FROM ubuntu:latest
