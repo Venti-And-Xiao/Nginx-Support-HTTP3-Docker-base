@@ -4,7 +4,7 @@ FROM ubuntu:latest AS builder
 RUN apt-get update
 
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
-RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r)
+RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r) git wget 
 # 安装Rustup工具，就像风带来的礼物～
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
@@ -38,6 +38,11 @@ RUN mv /src/quiche /src/nginx-1.26.3/
 
 RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.0.13/openssl-3.0.13.tar.gz
 RUN tar -xzvf openssl-3.0.13.tar.gz
+RUN cd openssl-3.0.13
+RUN ./config  --prefix=/usr/local/openssl
+RUN make
+RUN make install
+
 
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
