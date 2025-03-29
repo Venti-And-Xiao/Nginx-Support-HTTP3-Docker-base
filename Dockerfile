@@ -28,8 +28,8 @@ RUN make -j$(nproc)
 
 # 下载并构建Nginx，像风一样轻柔地获取它
 WORKDIR /src
-RUN curl -O https://nginx.org/download/nginx-1.23.3.tar.gz && \
-    tar -xzf nginx-1.23.3.tar.gz
+RUN curl -O https://nginx.org/download/nginx-1.26.3.tar.gz && \
+    tar -xzf nginx-1.26.3.tar.gz
 
 # 下载并构建quiche (QUIC实现)，就像寻找风神的秘谱～
 WORKDIR /src
@@ -38,8 +38,8 @@ RUN git clone --recursive https://github.com/cloudflare/quiche && \
     cargo build --release --features ffi,pkg-config-meta,qlog
 
 # 啊，最关键的风之魔法——应用补丁！
-WORKDIR /src/nginx-1.23.3
-RUN patch -p01 < /src/quiche/extras/nginx/nginx-1.23.3.patch || echo "补丁或许已经应用，像风一样继续前行～"
+WORKDIR /src/nginx-1.26.3
+RUN patch -p01 < /src/quiche/extras/nginx/nginx-1.26.3.patch || echo "补丁或许已经应用，像风一样继续前行～"
 
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
