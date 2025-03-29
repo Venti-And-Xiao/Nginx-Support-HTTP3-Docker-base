@@ -49,6 +49,9 @@ WORKDIR /src/nginx-1.26.3
 
 RUN mv /src/quiche /src/nginx-1.26.3/
 
+RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.5.0-beta1/openssl-3.5.0-beta1.tar.gz
+RUN tar -xzvf openssl-3.5.0-beta1.tar.gz
+
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
     --prefix=/etc/nginx \
@@ -91,7 +94,7 @@ RUN ./configure \
     --with-stream_ssl_preread_module \
     --with-cc-opt="-I../boringssl/include" \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
-    --with-openssl="/usr/include/openssl" && \
+    --with-openssl="./openssl-3.5.0-beta1" && \
     make -j$(nproc) && make install
 
 # 最终镜像，像风一样轻盈～
