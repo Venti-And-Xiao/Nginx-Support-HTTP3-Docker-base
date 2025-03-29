@@ -41,7 +41,7 @@ RUN curl -O https://nginx.org/download/nginx-1.26.3.tar.gz && \
 WORKDIR /src
 RUN git clone --recursive https://github.com/cloudflare/quiche
 WORKDIR /src/quiche
-RUN cargo build --release --features ffi,pkg-config-meta,qlog
+RUN cargo build --examples
 
 # 啊，最关键的风之魔法——应用补丁！
 WORKDIR /src/nginx-1.26.3
