@@ -49,8 +49,8 @@ WORKDIR /src/nginx-1.26.3
 
 RUN mv /src/quiche /src/nginx-1.26.3/
 
-RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
-RUN tar -xzvf openssl-3.4.1.tar.gz
+RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.3.3/openssl-3.3.3.tar.gz
+RUN tar -xzvf openssl-3.3.3.tar.gz
 
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
@@ -94,7 +94,7 @@ RUN ./configure \
     --with-stream_ssl_preread_module \
     --with-cc-opt="-I../boringssl/include" \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
-    --with-openssl="./openssl-3.4.1"
+    --with-openssl="./openssl-3.3.3"
     
 RUN make
 RUN sudo make install
