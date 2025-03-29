@@ -99,9 +99,8 @@ RUN ./configure \
     --with-stream_realip_module \
     --with-stream_ssl_module \
     --with-stream_ssl_preread_module \
-    --with-cc-opt="-I../boringssl/include" \
-    --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
-    --with-openssl="/usr/local/openssl"
+    --with-cc-opt="-I../boringssl/include -I/usr/local/openssl/include" \
+    --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -L/usr/local/openssl/lib"
     
 RUN make
 RUN make install
