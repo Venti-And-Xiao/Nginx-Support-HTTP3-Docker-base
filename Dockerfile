@@ -1,13 +1,16 @@
 FROM ubuntu:latest AS builder
 
+# 更新包列表
+RUN apt-get update
+
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
     gcc \
     g++ \
     make \
     cmake \
     perl \
-    linux-headers \
+    linux-headers-$(uname -r) \
     libssl-dev \
     libpcre3-dev \
     zlib1g-dev \
