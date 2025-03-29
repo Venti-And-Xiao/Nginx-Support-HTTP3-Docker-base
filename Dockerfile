@@ -16,7 +16,8 @@ RUN apt-get install -y \
     zlib1g-dev \
     openssl \
     curl \
-    git
+    git \
+    wget
 
 # 安装Rustup工具，就像风带来的礼物～
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
