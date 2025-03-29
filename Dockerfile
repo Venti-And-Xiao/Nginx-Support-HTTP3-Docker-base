@@ -46,6 +46,8 @@ RUN cargo build --examples
 # 啊，最关键的风之魔法——应用补丁！
 WORKDIR /src/nginx-1.26.3
 
+RUN mv /src/quiche /src/nginx-1.26.3/
+
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
     --prefix=/etc/nginx \
@@ -59,8 +61,7 @@ RUN ./configure \
     --with-http_ssl_module \
     --with-http_v2_module \
     --with-http_v3_module \
-    --with-openssl=/src/boringssl \
-    --with-quiche=/src/quiche && \
+    --with-openssl=/src/boringssl && \
     make -j$(nproc) && make install
 
 # 最终镜像，像风一样轻盈～
