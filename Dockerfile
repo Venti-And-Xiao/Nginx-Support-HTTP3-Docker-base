@@ -25,12 +25,12 @@ RUN make -j$(nproc)
 
 # 下载并构建Nginx
 WORKDIR /src
-RUN curl -O https://nginx.org/download/nginx-1.25.3.tar.gz && \
-    tar -xzf nginx-1.25.3.tar.gz
+RUN curl -O https://nginx.org/download/nginx-1.26.3.tar.gz && \
+    tar -xzf nginx-1.26.3.tar.gz
 
 # 下载并构建quiche (QUIC实现)
 RUN git clone --recursive https://github.com/cloudflare/quiche
-WORKDIR /src/nginx-1.25.3
+WORKDIR /src/nginx-1.26.3
 
 # 配置Nginx与HTTP/3支持
 RUN ./configure \
