@@ -59,6 +59,8 @@ RUN make install
 
 WORKDIR /src/nginx-1.26.3
 
+RUN wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-1.1.0l.tar.gz
+RUN tar -xzvf openssl-1.1.0l.tar.gz
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
     --prefix=/etc/nginx \
@@ -101,7 +103,7 @@ RUN ./configure \
     --with-stream_ssl_preread_module \
     --with-cc-opt="-I../boringssl/include -I/usr/local/openssl/include" \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -L/usr/local/openssl/lib" \
-    --with-openssl=/usr/local/openssl/include
+    --with-openssl=/src/nginx-1.26.3/openssl-1.1.0l
     
 RUN make
 RUN make install
