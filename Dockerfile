@@ -1,4 +1,4 @@
-FROM alpine:3.19 AS builder
+FROM ubuntu:latest AS builder
 
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
 RUN apk add --no-cache \
@@ -60,7 +60,7 @@ RUN ./configure \
     make -j$(nproc) && make install
 
 # 最终镜像，像风一样轻盈～
-FROM alpine:3.19
+FROM ubuntu:latest
 
 # 复制构建好的文件，像收集风中的蒲公英种子
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
