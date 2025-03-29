@@ -115,6 +115,8 @@ COPY --from=builder /etc/nginx /etc/nginx
 COPY --from=builder /src/boringssl/build/ssl/libssl.so /usr/lib/
 COPY --from=builder /src/boringssl/build/crypto/libcrypto.so /usr/lib/
 
+RUN mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp            /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp            /var/cache/nginx/scgi_temp
+
 # 添加运行依赖，像为歌谣添加伴奏
 RUN apt-get update && apt-get install -y libpcre3 libssl1.1 zlib1g && \
     mkdir -p /var/log/nginx && \
