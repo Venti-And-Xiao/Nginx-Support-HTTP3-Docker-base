@@ -21,6 +21,11 @@ RUN apt-get install -y \
 # 安装Rustup工具，就像风带来的礼物～
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
+RUN apt-get update && apt-get install -y clang
+
+# 设置LIBCLANG_PATH环境变量
+ENV LIBCLANG_PATH=/usr/lib/llvm-10/lib
+
 # 配置环境变量
 ENV PATH="/root/.cargo/bin:${PATH}"
 
