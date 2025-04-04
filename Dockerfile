@@ -1,149 +1,126 @@
-FROM ubuntu:latest AS builder
+FROM ubuntu:22.04 AS builder
 
-# Update package lists
-RUN apt-get update
+# Set non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build tools and dependencies
-RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev git wget
-RUN apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    cmake \
-    perl \
-    libssl-dev \
-    libpcre3-dev \
-    zlib1g-dev \
-    curl
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    git wget build-essential libpcre3-dev zlib1g-dev \
+    libssl-dev cmake ninja-build golang libunwind-dev \
+    pkg-config curl gnupg2 ca-certificates
 
-# Fix: Install clang and libclang properly
-RUN apt-get install -y clang libclang-dev
-
-# Install Rustup tool
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# Configure environment variables
-ENV PATH="/root/.cargo/bin:${PATH}"
-# Fix: Set the correct LIBCLANG_PATH
-ENV LIBCLANG_PATH=/usr/lib/llvm-10/lib
-
-# Build BoringSSL (needed for HTTP/3)
+# Build BoringSSL (required for QUIC/HTTP3)
 WORKDIR /src
-RUN git clone https://github.com/google/boringssl.git
-WORKDIR /src/boringssl
-RUN mkdir build
-WORKDIR /src/boringssl/build
-RUN cmake -DCMAKE_POSITION_INDEPENDENT_CODE=on ..
-RUN make -j$(nproc)
+RUN git clone https://github.com/google/boringssl.git && \
+    cd boringssl && \
+    mkdir build && \
+    cd build && \
+    cmake -GNinja .. && \
+    ninja
 
-# Download and extract Nginx
+# Download and build Nginx with HTTP/3
+ARG NGINX_VERSION=1.25.4
 WORKDIR /src
-RUN curl -O https://nginx.org/download/nginx-1.26.3.tar.gz && \
-    tar -xzf nginx-1.26.3.tar.gz
+RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
+    tar -xzvf nginx-${NGINX_VERSION}.tar.gz && \
+    git clone --recursive https://github.com/cloudflare/quiche.git && \
+    cd nginx-${NGINX_VERSION} && \
+    patch -p01 < /src/quiche/extras/nginx/nginx-${NGINX_VERSION}.patch && \
+    ./configure \
+        --prefix=/etc/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --modules-path=/usr/lib/nginx/modules \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --pid-path=/var/run/nginx.pid \
+        --lock-path=/var/run/nginx.lock \
+        --http-client-body-temp-path=/var/cache/nginx/client_temp \
+        --http-proxy-temp-path=/var/cache/nginx/proxy_temp \
+        --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
+        --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
+        --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
+        --with-http_ssl_module \
+        --with-http_v2_module \
+        --with-http_v3_module \
+        --with-openssl=/src/boringssl \
+        --with-quiche=/src/quiche && \
+    make -j$(nproc) && \
+    make install
 
-# Download and build quiche (QUIC implementation)
-WORKDIR /src
-RUN git clone --recursive https://github.com/cloudflare/quiche
-WORKDIR /src/quiche
-# Fix: Explicitly install additional dependencies before building
-RUN apt-get install -y llvm-dev libclang-dev
-RUN cargo build --examples
+# Create the final image
+FROM ubuntu:22.04
 
-# Move quiche to the nginx directory
-WORKDIR /src/nginx-1.26.3
-RUN mv /src/quiche /src/nginx-1.26.3/
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates libpcre3 openssl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install OpenSSL
-WORKDIR /src
-RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.0.13/openssl-3.0.13.tar.gz
-RUN tar -xzvf openssl-3.0.13.tar.gz
-WORKDIR /src/openssl-3.0.13
-RUN ./config --prefix=/usr/local/openssl
-RUN make
-RUN make install
-
-WORKDIR /src/nginx-1.26.3
-
-RUN wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-1.1.0l.tar.gz
-RUN tar -xzvf openssl-1.1.0l.tar.gz
-
-# Configure Nginx with HTTP/3 support
-RUN ./configure \
-    --prefix=/etc/nginx \
-    --sbin-path=/usr/sbin/nginx \
-    --modules-path=/usr/lib/nginx/modules \
-    --conf-path=/etc/nginx/nginx.conf \
-    --error-log-path=/var/log/nginx/error.log \
-    --http-log-path=/var/log/nginx/access.log \
-    --pid-path=/var/run/nginx.pid \
-    --lock-path=/var/run/nginx.lock \
-    --http-client-body-temp-path=/var/cache/nginx/client_temp \
-    --http-proxy-temp-path=/var/cache/nginx/proxy_temp \
-    --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
-    --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
-    --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
-    --with-compat \
-    --with-file-aio \
-    --with-threads \
-    --with-http_addition_module \
-    --with-http_auth_request_module \
-    --with-http_dav_module \
-    --with-http_flv_module \
-    --with-http_gunzip_module \
-    --with-http_gzip_static_module \
-    --with-http_mp4_module \
-    --with-http_random_index_module \
-    --with-http_realip_module \
-    --with-http_secure_link_module \
-    --with-http_slice_module \
-    --with-http_ssl_module \
-    --with-http_stub_status_module \
-    --with-http_sub_module \
-    --with-http_v2_module \
-    --with-http_v3_module \
-    --with-mail \
-    --with-mail_ssl_module \
-    --with-stream \
-    --with-stream_realip_module \
-    --with-stream_ssl_module \
-    --with-stream_ssl_preread_module \
-    --with-cc-opt="-I../boringssl/include -I/usr/local/openssl/include" \
-    --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -L/usr/local/openssl/lib" \
-    --with-openssl=/src/nginx-1.26.3/openssl-1.1.0l
-
-RUN make
-RUN make install
-
-# Final image
-FROM ubuntu:latest
-
-# Copy built files
-COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
+# Copy Nginx and its dependencies from builder
 COPY --from=builder /etc/nginx /etc/nginx
-COPY --from=builder /src/boringssl/build/ssl/libssl.so /usr/lib/
-COPY --from=builder /src/boringssl/build/crypto/libcrypto.so /usr/lib/
+COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=builder /var/log/nginx /var/log/nginx
+COPY --from=builder /src/boringssl/build/ssl/libssl.a /usr/lib/
+COPY --from=builder /src/boringssl/build/crypto/libcrypto.a /usr/lib/
 
-# Create necessary directories
-RUN mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp \
-            /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp \
-            /var/cache/nginx/scgi_temp
+# Create required directories
+RUN mkdir -p /var/cache/nginx/client_temp && \
+    mkdir -p /etc/nginx/conf.d && \
+    mkdir -p /usr/share/nginx/html
 
-# Add runtime dependencies
-RUN apt-get update && apt-get install -y libpcre3 libssl1.1 zlib1g && \
-    mkdir -p /var/log/nginx && \
-    mkdir -p /var/cache/nginx
+# Create default configuration with HTTP/3 support
+RUN echo 'worker_processes auto;\n\
+events {\n\
+    worker_connections 1024;\n\
+}\n\
+\n\
+http {\n\
+    sendfile on;\n\
+    tcp_nopush on;\n\
+    tcp_nodelay on;\n\
+    keepalive_timeout 65;\n\
+    types_hash_max_size 2048;\n\
+    include /etc/nginx/mime.types;\n\
+    default_type application/octet-stream;\n\
+    ssl_protocols TLSv1.3;\n\
+    ssl_prefer_server_ciphers on;\n\
+    access_log /var/log/nginx/access.log;\n\
+    error_log /var/log/nginx/error.log;\n\
+    include /etc/nginx/conf.d/*.conf;\n\
+}' > /etc/nginx/nginx.conf
 
-# Add Nginx user
-RUN addgroup --system nginx && \
-    adduser --system --no-create-home --disabled-login --ingroup nginx nginx
+# Default site configuration
+RUN echo 'server {\n\
+    listen 80;\n\
+    listen 443 ssl http2;\n\
+    listen 443 quic reuseport;\n\
+    server_name localhost;\n\
+    ssl_certificate /etc/nginx/ssl/nginx.crt;\n\
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;\n\
+    ssl_protocols TLSv1.3;\n\
+    add_header Alt-Svc \'h3=":443"; ma=86400\';\n\
+    location / {\n\
+        root /usr/share/nginx/html;\n\
+        index index.html;\n\
+    }\n\
+}' > /etc/nginx/conf.d/default.conf
 
-# Prepare configuration and files
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY certs/ /etc/nginx/certs/
-COPY html/ /usr/share/nginx/html/
+# Create default index page
+RUN echo '<html><body><h1>HTTP/3 Enabled!</h1></body></html>' > /usr/share/nginx/html/index.html
+
+# Forward request logs to Docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
+
+# Create non-root user
+RUN adduser --system --no-create-home --shell /bin/false --group --disabled-login nginx
+
+# Create directory for SSL certificates
+RUN mkdir -p /etc/nginx/ssl
 
 # Expose ports
 EXPOSE 80 443/tcp 443/udp
 
-# Start Nginx
+STOPSIGNAL SIGQUIT
+
 CMD ["nginx", "-g", "daemon off;"]
