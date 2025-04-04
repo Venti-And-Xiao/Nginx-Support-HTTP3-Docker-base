@@ -4,7 +4,7 @@ FROM ubuntu:latest AS builder
 RUN apt-get update
 
 # 安装构建工具和依赖，就像为一场完美的诗会做准备～
-RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r) git wget 
+RUN apt-get install -y build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev linux-headers-$(uname -r) git wget
 RUN apt-get install -y \
     gcc \
     g++ \
@@ -18,9 +18,11 @@ RUN apt-get install -y \
     curl \
     git \
     wget
+
 # 安装Rustup工具，就像风带来的礼物～
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
+# 安装libclang
 RUN apt-get update && apt-get install -y clang
 
 # 设置LIBCLANG_PATH环境变量
@@ -66,6 +68,7 @@ WORKDIR /src/nginx-1.26.3
 
 RUN wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-1.1.0l.tar.gz
 RUN tar -xzvf openssl-1.1.0l.tar.gz
+
 # 配置Nginx与HTTP/3支持，就像谱写一首完美的风之诗～
 RUN ./configure \
     --prefix=/etc/nginx \
@@ -110,7 +113,6 @@ RUN ./configure \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -L/usr/local/openssl/lib" \
     --with-openssl=/src/nginx-1.26.3/openssl-1.1.0l
 
-    
 RUN make
 RUN make install
 
