@@ -42,8 +42,8 @@ RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
         --with-http_ssl_module \
         --with-http_v2_module \
         --with-http_v3_module \
-        --with-openssl=/src/boringssl \
-        --with-quiche=/src/quiche && \
+        --with-cc-opt="-I../quiche/deps/boringssl/include" \
+        --with-ld-opt="-L../quiche/deps/boringssl/lib" 
     make -j$(nproc) && \
     make install
 
