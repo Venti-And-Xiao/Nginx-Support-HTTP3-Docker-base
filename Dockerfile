@@ -25,7 +25,6 @@ RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
     tar -xzvf nginx-${NGINX_VERSION}.tar.gz && \
     git clone --recursive https://github.com/cloudflare/quiche.git && \
     cd nginx-${NGINX_VERSION} && \
-    patch -p01 < /src/quiche/extras/nginx/nginx-${NGINX_VERSION}.patch && \
     ./configure \
         --prefix=/etc/nginx \
         --sbin-path=/usr/sbin/nginx \
