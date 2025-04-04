@@ -104,6 +104,7 @@ RUN ./configure \
     --with-cc-opt="-I../boringssl/include -I/usr/local/openssl/include" \
     --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -L/usr/local/openssl/lib" \
     --with-openssl=/src/nginx-1.26.3/openssl-1.1.0l
+
     
 RUN make
 RUN make install
