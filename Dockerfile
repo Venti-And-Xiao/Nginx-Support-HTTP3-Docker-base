@@ -89,19 +89,19 @@ http {\n\
 }' > /etc/nginx/nginx.conf
 
 # Default site configuration
-RUN echo 'server {\n\
-    listen 80;\n\
-    listen 443 ssl http2;\n\
-    listen 443 quic reuseport;\n\
-    server_name localhost;\n\
-    ssl_certificate /etc/nginx/ssl/nginx.crt;\n\
-    ssl_certificate_key /etc/nginx/ssl/nginx.key;\n\
-    ssl_protocols TLSv1.3;\n\
-    add_header Alt-Svc \'h3=":443"; ma=86400\';\n\
-    location / {\n\
-        root /usr/share/nginx/html;\n\
-        index index.html;\n\
-    }\n\
+RUN echo 'server {\
+    listen 80;\
+    listen 443 ssl http2;\
+    listen 443 quic reuseport;\
+    server_name localhost;\
+    ssl_certificate /etc/nginx/ssl/nginx.crt;\
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;\
+    ssl_protocols TLSv1.3;\
+    add_header Alt-Svc '\''h3=":443"; ma=86400'\'';\
+    location / {\
+        root /usr/share/nginx/html;\
+        index index.html;\
+    }\
 }' > /etc/nginx/conf.d/default.conf
 
 # Create default index page
