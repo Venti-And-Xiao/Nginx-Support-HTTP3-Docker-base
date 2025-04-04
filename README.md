@@ -13,8 +13,7 @@
 
 1. 确保安装了Docker和docker-compose
 2. 克隆此仓库
-   - 运行`echo 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 | docker login ghcr.io -u Mryan2005 --password-stdin`
-   - 运行`docker pull ghcr.io/venti-and-xiao/nginx-support-http3-docker-base:latest`
+   - 运行`docker pull ghcr.io/venti-and-xiao/nginx-support-http3-docker-base:版本号`
 3. 运行 `docker-compose up -d`
 5. 访问 https://localhost 测试HTTP/3连接
 
