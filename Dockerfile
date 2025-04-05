@@ -48,16 +48,11 @@ RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
     make -j$(nproc) && \
     make install
 
-# Download and build MySQL from source
+# Download and install MySQL from .deb bundle
 WORKDIR /src
 RUN wget https://downloads.mysql.com/archives/get/p/23/file/mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
-    tar -xzf mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
-    cd mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DDOWNLOAD_BOOST=1 -DWITH_BOOST=../boost && \
-    make -j$(nproc) && \
-    make install
+    tar -xvf mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
+    dpkg -i *.deb || apt-get -f install -y
 
 # Create the final image
 FROM ubuntu:22.04
