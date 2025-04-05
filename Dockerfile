@@ -66,7 +66,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates libpcre3 openssl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get remove -y python3.10 python3.10-venv python3.10-dev && \
+RUN apt-get remove -y python3 python3-venv python3-dev && \
     apt-get autoremove -y
 
 # 安装Python 3.11
