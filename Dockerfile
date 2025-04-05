@@ -78,7 +78,7 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     apt-get install --reinstall ca-certificates  && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
+    add-apt-repository -E --update ppa:ubuntu-toolchain-r/test -y && \
     apt-get update && \
     apt-get install -y python3.11 && \
     rm -rf /var/lib/apt/lists/*
