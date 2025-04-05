@@ -59,6 +59,8 @@ RUN find / -name 'mysql' -type d
 # Create the final image
 FROM ubuntu:22.04
 
+LABEL org.opencontainers.image.description DESCRIPTION
+
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates libpcre3 openssl \
