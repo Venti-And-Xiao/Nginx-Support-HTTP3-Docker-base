@@ -79,7 +79,7 @@ RUN apt-get update && apt-get install -y \
     software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
-    apt install python3.11
+    apt install python3.11 -y
 
 RUN python3 --version
 
