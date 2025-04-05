@@ -59,8 +59,8 @@ RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
 # Download and install MySQL from .deb bundle
 WORKDIR /src
 RUN wget https://downloads.mysql.com/archives/get/p/23/file/mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
-    tar -xvf mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
-    dpkg -i *.deb || apt-get -f install -y
+     tar -xvf mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
+     dpkg -i *.deb || apt-get -f install -y
 
 RUN find / -name 'mysql' -type d
 
