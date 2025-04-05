@@ -10,6 +10,14 @@ RUN apt-get update && apt-get install -y \
     pkg-config curl gnupg2 ca-certificates \
     libncurses5-dev libaio-dev bison
 
+# 安装Python 3.11
+RUN apt-get update && apt-get install -y \
+    software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y python3.11 python3.11-venv python3.11-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 # Build BoringSSL (required for QUIC/HTTP3)
 WORKDIR /src
 RUN git clone https://github.com/google/boringssl.git && \
@@ -65,6 +73,14 @@ LABEL org.opencontainers.image.description DESCRIPTION
 RUN apt-get update && apt-get install -y \
     ca-certificates libpcre3 openssl \
     && rm -rf /var/lib/apt/lists/*
+
+# 安装Python 3.11
+RUN apt-get update && apt-get install -y \
+    software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y python3.11 python3.11-venv python3.11-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy Nginx and its dependencies from builder
 COPY --from=builder /etc/nginx /etc/nginx
