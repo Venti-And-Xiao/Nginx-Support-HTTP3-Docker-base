@@ -91,9 +91,6 @@ COPY --from=builder /src/boringssl/build/crypto/libcrypto.a /usr/lib/
 
 # Copy MySQL binaries from builder
 COPY --from=builder /usr/lib/mysql /usr/lib/mysql
-COPY --from=builder /var/log/mysql /var/log/mysql
-COPY --from=builder /var/lib/mysql /var/lib/mysql
-COPY --from=builder /var/lib/mysql/mysql /var/lib/mysql/mysql
 COPY --from=builder /etc/mysql /etc/mysql
 COPY --from=builder /usr/include/mysql /usr/include/mysql
 COPY --from=builder /usr/include/mysql/mysql /usr/include/mysql/mysql
