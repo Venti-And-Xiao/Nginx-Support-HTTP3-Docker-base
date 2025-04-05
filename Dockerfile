@@ -79,8 +79,9 @@ RUN apt-get update && apt-get install -y \
     software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
-    apt-get install -y python3.11 python3.11-venv python3.11-dev && \
-    rm -rf /var/lib/apt/lists/*
+    apt install python3.11
+
+RUN python3 --version
 
 # Copy Nginx and its dependencies from builder
 COPY --from=builder /etc/nginx /etc/nginx
