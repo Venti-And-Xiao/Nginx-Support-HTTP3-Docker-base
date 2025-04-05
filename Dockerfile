@@ -54,6 +54,8 @@ RUN wget https://downloads.mysql.com/archives/get/p/23/file/mysql-server_8.4.3-1
     tar -xvf mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
     dpkg -i *.deb || apt-get -f install -y
 
+RUN find / -name 'mysql' -type d
+
 # Create the final image
 FROM ubuntu:22.04
 
