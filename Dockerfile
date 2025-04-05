@@ -75,11 +75,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装Python 3.11
-RUN apt-get update && apt-get install -y \
-    software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update && \
-    apt install python3.11 -y
+    apt-get install -y python3.11 && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN python3 --version
 
