@@ -66,7 +66,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates libpcre3 openssl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN sudo apt-get remove --purge python* -y && \
+RUN apt-get remove --purge python* -y && \
     apt-get autoremove -y
 
 # 安装Python 3.11
