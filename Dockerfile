@@ -137,6 +137,9 @@ RUN adduser --system --no-create-home --shell /bin/false --group --disabled-logi
 # Create directory for SSL certificates
 RUN mkdir -p /etc/nginx/ssl
 
+# Ensure the mysql user and group exist
+RUN groupadd -r mysql && useradd -r -g mysql mysql
+
 # MySQL configuration and initialization
 RUN ln -sf /dev/stdout /var/log/mysql/error.log && \
     ln -sf /dev/stdout /var/log/mysql/general.log && \
