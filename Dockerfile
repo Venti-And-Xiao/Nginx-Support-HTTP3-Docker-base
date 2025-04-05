@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     git wget build-essential libpcre3-dev zlib1g-dev \
     libssl-dev cmake ninja-build golang libunwind-dev \
-    pkg-config curl gnupg2 ca-certificates
+    pkg-config curl gnupg2 ca-certificates \
+    libncurses5-dev libaio-dev bison
 
 # Build BoringSSL (required for QUIC/HTTP3)
 WORKDIR /src
@@ -47,6 +48,17 @@ RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
     make -j$(nproc) && \
     make install
 
+# Download and build MySQL from source
+WORKDIR /src
+RUN wget https://downloads.mysql.com/archives/get/p/23/file/mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
+    tar -xzf mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle.tar && \
+    cd mysql-server_8.4.3-1ubuntu22.04_amd64.deb-bundle && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DDOWNLOAD_BOOST=1 -DWITH_BOOST=../boost && \
+    make -j$(nproc) && \
+    make install
+
 # Create the final image
 FROM ubuntu:22.04
 
@@ -62,10 +74,15 @@ COPY --from=builder /var/log/nginx /var/log/nginx
 COPY --from=builder /src/boringssl/build/ssl/libssl.a /usr/lib/
 COPY --from=builder /src/boringssl/build/crypto/libcrypto.a /usr/lib/
 
+# Copy MySQL binaries from builder
+COPY --from=builder /usr/local/mysql /usr/local/mysql
+
 # Create required directories
 RUN mkdir -p /var/cache/nginx/client_temp && \
     mkdir -p /etc/nginx/conf.d && \
-    mkdir -p /usr/share/nginx/html
+    mkdir -p /usr/share/nginx/html && \
+    mkdir -p /var/lib/mysql && \
+    mkdir -p /var/run/mysqld
 
 # Create default configuration with HTTP/3 support
 RUN echo 'worker_processes auto;\n\
@@ -117,9 +134,19 @@ RUN adduser --system --no-create-home --shell /bin/false --group --disabled-logi
 # Create directory for SSL certificates
 RUN mkdir -p /etc/nginx/ssl
 
+# MySQL configuration and initialization
+RUN ln -sf /dev/stdout /var/log/mysql/error.log && \
+    ln -sf /dev/stdout /var/log/mysql/general.log && \
+    chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
+
+# MySQL environment variables
+ENV PATH="/usr/local/mysql/bin:${PATH}"
+ENV MYSQL_ROOT_PASSWORD=root
+
 # Expose ports
-EXPOSE 80 443/tcp 443/udp
+EXPOSE 80 443/tcp 443/udp 3306
 
 STOPSIGNAL SIGQUIT
 
-CMD ["nginx", "-g", "daemon off;"]
+# Start both MySQL and Nginx
+CMD ["/bin/bash", "-c", "mysqld_safe --datadir=/var/lib/mysql & nginx -g 'daemon off;'"]
