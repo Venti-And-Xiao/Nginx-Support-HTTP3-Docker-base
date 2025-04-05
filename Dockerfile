@@ -72,7 +72,13 @@ COPY --from=builder /src/boringssl/build/ssl/libssl.a /usr/lib/
 COPY --from=builder /src/boringssl/build/crypto/libcrypto.a /usr/lib/
 
 # Copy MySQL binaries from builder
-COPY --from=builder /usr/local/mysql /usr/local/mysql
+COPY --from=builder /usr/lib/mysql /usr/lib/mysql
+COPY --from=builder /var/log/mysql /var/log/mysql
+COPY --from=builder /var/lib/mysql /var/lib/mysql
+COPY --from=builder /var/lib/mysql/mysql /var/lib/mysql/mysql
+COPY --from=builder /etc/mysql /etc/mysql
+COPY --from=builder /usr/include/mysql /usr/include/mysql
+COPY --from=builder /usr/include/mysql/mysql /usr/include/mysql/mysql
 
 # Create required directories
 RUN mkdir -p /var/cache/nginx/client_temp && \
