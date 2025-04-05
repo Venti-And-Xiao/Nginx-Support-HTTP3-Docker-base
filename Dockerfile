@@ -77,6 +77,7 @@ RUN apt-get update && apt-get install -y \
 # 安装Python 3.11
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
+    apt-get install --reinstall ca-certificates  && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update && \
     apt-get install -y python3.11 && \
