@@ -10,14 +10,6 @@ RUN apt-get update && apt-get install -y \
     pkg-config curl gnupg2 ca-certificates \
     libncurses5-dev libaio-dev bison
 
-# 安装Python 3.11
-RUN apt-get update && apt-get install -y \
-    software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y python3.11 python3.11-venv python3.11-dev && \
-    rm -rf /var/lib/apt/lists/*
-
 # Build BoringSSL (required for QUIC/HTTP3)
 WORKDIR /src
 RUN git clone https://github.com/google/boringssl.git && \
@@ -159,9 +151,12 @@ RUN mkdir -p /etc/nginx/ssl
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 
 # MySQL configuration and initialization
-RUN ln -sf /dev/stdout /var/log/mysql/error.log && \
+RUN mkdir -p /var/log/mysql && \
+    touch /var/log/mysql/error.log && \
+    touch /var/log/mysql/general.log && \
+    ln -sf /dev/stdout /var/log/mysql/error.log && \
     ln -sf /dev/stdout /var/log/mysql/general.log && \
-    chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
+    chown -R mysql:mysql /var/lib/mysql /var/run/mysqld /var/log/mysql
 
 # MySQL environment variables
 ENV PATH="/usr/local/mysql/bin:${PATH}"
